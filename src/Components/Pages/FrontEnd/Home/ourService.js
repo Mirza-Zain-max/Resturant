@@ -13,7 +13,7 @@ const OurService = () => {
   return (
     <Fade>
       <Container>
-        <Row className=' d-flex justify-content-center my-5 align-items-center'>
+        <Row className='`d-flex justify-content-center my-5 align-items-center'>
           <Col>
             <Title className=' text-light d-flex justify-content-center align-items-center ' >Our Service </Title>
           </Col>
