@@ -4,14 +4,21 @@ import { Button, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { auth } from 'Components/Config/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
+
 
 const Register = () => {
-    const initialState = { fullName: '', email: '', password: '', confirmPassword: '' };
+    const initialState = { fullName: '', email: '', password: '', confirmPassword: '', phone: '' };
     const [state, setState] = useState(initialState);
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleChange = (e) =>
         setState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+    const handlePhoneChange = (phone) => {
+        setState((prev) => ({ ...prev, phone }));
+    };
 
     const handleSubmit = async () => {
         const { fullName, email, password, confirmPassword } = state;
@@ -34,7 +41,7 @@ const Register = () => {
 
             await createDocument({ ...state, uid: user.uid });
             setState(initialState);
-            
+
         } catch (error) {
             message.success('Registration successful!');
         } finally {
@@ -63,9 +70,19 @@ const Register = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
+                                <Form.Item  label="Phone" name="phone" rules={[{ required: true, message: 'Please enter your phone number.' }]}                                >   
+                                    <PhoneInput
+                                        inputStyle={{  outline:"blue" , width: '100%' , height: '38px' , }}
+                                        country={'pk'}
+                                        value={state.phone}
+                                        onChange={handlePhoneChange} 
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={24}>
                                 <Form.Item
                                     label="Email" name="email" rules={[{ required: true, message: 'Please enter your email.' }, { type: 'email', message: 'Please enter a valid email.' },]}>
-                                    <Input type="email" placeholder="Enter your email" onChange={handleChange} name="email" value={state.email} />
+                                    <Input inputMode='email' placeholder="Enter your email" onChange={handleChange} name="email" value={state.email} />
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
@@ -91,8 +108,7 @@ const Register = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
-                                <Button type="primary" className="w-100" disabled={isProcessing}
-                                >
+                                <Button type="primary" className="w-100" disabled={isProcessing} htmlType="submit">
                                     Register
                                 </Button>
                             </Col>

@@ -42,7 +42,7 @@ const NavHeader = () => {
         { name: 'Home', path: "/" },
         // { name: 'Blog', path: "/pages/blog" },
         { name: 'About us', path: "/about" },
-        { name: 'My Todos', path: "/todo" },
+        { name: 'Register', path: "/auth/register" },
     ]
 
     const [activeId, setActiveId] = useState(null);

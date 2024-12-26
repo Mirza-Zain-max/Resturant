@@ -51,7 +51,7 @@ const Login = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
-                                <Button type="primary" className="w-100"
+                                <Button type="primary"  className="w-100"
                             
                                 >
                                    Login
