@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Navbar, Nav, Container, Offcanvas, Image} from 'react-bootstrap'
+import { Navbar, Nav, Container, Offcanvas, Image, NavDropdown, Dropdown } from 'react-bootstrap'
 import './navHeader.css'
 import { Menu } from 'react-feather';
-import {  NavLink } from 'react-router-dom';
-import {   Typography } from 'antd';
+import { Link, NavLink } from 'react-router-dom';
+import {  Typography } from 'antd';
 import Logo from '../Pages/Assets/images/logo.png'
+import { useAuthContext } from 'Components/Pages/Context/Auth';
 
 
 function ScrollHandler() {
@@ -15,7 +16,7 @@ function ScrollHandler() {
             const navbar = document.getElementById('navbar');
             const scrollPosition = window.scrollY;
             if (scrollPosition > prevScrollY.current) {
-                navbar.style.top = '-70px';
+                navbar.style.top = '-50px';
             } else {
                 navbar.style.top = '0';
             }
@@ -42,7 +43,7 @@ const NavHeader = () => {
         { name: 'Home', path: "/" },
         // { name: 'Blog', path: "/pages/blog" },
         { name: 'About us', path: "/about" },
-        { name: 'Register', path: "/auth/register" },
+        { name: 'Service', path: "/service" },
     ]
 
     const [activeId, setActiveId] = useState(null);
@@ -54,10 +55,7 @@ const NavHeader = () => {
         setActiveId(itemId);
         handleClose()
     };
-    // const { isAuth, handleLogout } = useAuthContext(() => {
-    //     console.log('isAuth', isAuth)
-    //     message.error("Error")
-    // })
+    const { isAuth, handleLogout } = useAuthContext()
 
     return (
         <>
@@ -69,7 +67,7 @@ const NavHeader = () => {
                             <Title level={2} style={{ fontFamily: "Quella" }} className='text-light' ><Image src={Logo} className='me-2 mb-1' /><i>Tasty</i></Title>
                         </NavLink>
                     </Navbar.Brand>
-                   {/*  <NavDropdown title="Account" className=' d-flex mb-3 ms-3 my-sm-3 ' id="basic-nav-dropdown">
+                     <NavDropdown title="Account" className=' text-light d-flex mb-3 ms-3 flex-wrap ' id="basic-nav-dropdown">
                         {!isAuth
                             ? <>
                                 <Dropdown.Item as={"div"}>
@@ -88,8 +86,8 @@ const NavHeader = () => {
                                 </Dropdown.Item>
                             </>
                         }
-                    </NavDropdown> */}
-                  
+                    </NavDropdown>
+
                     <Navbar.Toggle onClick={handleShow} className='ms-auto mb-3 border-0 p-0 mb-0' style={{
                         fontSize: "13px",
                         paddingInline: "6px",
@@ -121,7 +119,7 @@ const NavHeader = () => {
                             <Nav className='nav_link fs_10 justify-content-center align-items-center  gap-3' >
                                 {navItems.map((items, index) => (
                                     <NavLink className={''} onClick={() => handleActive(index)}
-                                    key={index} to={items.path}>
+                                        key={index} to={items.path}>
                                         <span className=''>
                                             {items.name}
                                         </span>

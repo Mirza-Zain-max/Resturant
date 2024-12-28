@@ -16,11 +16,13 @@ const Register = () => {
     const handleChange = (e) =>
         setState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
+    
     const handlePhoneChange = (phone) => {
         setState((prev) => ({ ...prev, phone }));
     };
-
+    
     const handleSubmit = async () => {
+      
         const { fullName, email, password, confirmPassword } = state;
 
         // Validation
@@ -34,6 +36,7 @@ const Register = () => {
         if (confirmPassword !== password) {
             return message.error("Passwords don't match.");
         }
+        const userData = { uid: "", fullName, email, password, confirmPassword }
         try {
             setIsProcessing(true);
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -47,6 +50,7 @@ const Register = () => {
         } finally {
             setIsProcessing(false);
         }
+        createDocument(userData)
     };
 
     const createDocument = async (userData) => {
@@ -70,12 +74,12 @@ const Register = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
-                                <Form.Item  label="Phone" name="phone" rules={[{ required: true, message: 'Please enter your phone number.' }]}                                >   
+                                <Form.Item label="Phone" name="phone" rules={[{ required: true, message: 'Please enter your phone number.' }]}                                >
                                     <PhoneInput
-                                        inputStyle={{  outline:"blue" , width: '100%' , height: '38px' , }}
+                                        inputStyle={{ outline: "blue", width: '100%', height: '38px', }}
                                         country={'pk'}
                                         value={state.phone}
-                                        onChange={handlePhoneChange} 
+                                        onChange={handlePhoneChange}
                                     />
                                 </Form.Item>
                             </Col>
