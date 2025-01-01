@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Col, Form, Input, Row, message } from 'antd';
 import { Button, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { auth } from 'Components/Config/firebase';
+import { auth, fireStore } from 'Components/Config/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
-
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 const Register = () => {
     const initialState = { fullName: '', email: '', password: '', confirmPassword: '', phone: '' };
@@ -16,14 +16,12 @@ const Register = () => {
     const handleChange = (e) =>
         setState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-    
     const handlePhoneChange = (phone) => {
         setState((prev) => ({ ...prev, phone }));
     };
-    
+
     const handleSubmit = async () => {
-      
-        const { fullName, email, password, confirmPassword } = state;
+        const { fullName, email, password , phone , confirmPassword} = state;
 
         // Validation
         if (fullName.trim().length < 3) {
@@ -31,31 +29,54 @@ const Register = () => {
         }
         if (password.length < 8) {
             return message.error('Password must be at least 8 characters long.');
-
         }
         if (confirmPassword !== password) {
             return message.error("Passwords don't match.");
         }
-        const userData = { uid: "", fullName, email, password, confirmPassword }
-        try {
-            setIsProcessing(true);
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+        if (phone.length < 10) { return message.error('Please enter a valid phone number.'); }
 
-            await createDocument({ ...state, uid: user.uid });
-            setState(initialState);
-
-        } catch (error) {
-            message.success('Registration successful!');
-        } finally {
-            setIsProcessing(false);
-        }
-        createDocument(userData)
+        const userData = { fullName, email, password, phone: state.phone };
+        setIsProcessing(true);
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                // message.success("User is Successfully Registered");
+                localStorage.setItem('user-login', true);
+                localStorage.setItem('user-uid', user.uid);
+                createDocument({ ...userData, uid: user.uid });
+            })
+            .catch((error) => {
+                // message.error("Account is already registered", error);
+                console.log('error', error)
+            })
+            .finally(() => {
+                setIsProcessing(false);
+            });
     };
 
     const createDocument = async (userData) => {
         console.log('User data:', userData);
+        let { uid, email, password, displayName } = userData;
+        let user = {
+            uid: uid,
+            fullName: state.fullName || displayName,
+            email: email,
+            password: password,
+            phone: state.phone || '',
+            DataCreated: serverTimestamp(),
+            status: 'active',
+        }
         // Placeholder for database integration logic
+        try {
+            // const docRef = await addDoc(collection(fireStore, "users"), userData);
+            await setDoc(doc(fireStore, "users", user.uid), user);
+        } catch (e) {
+            message.error("Error adding document: ", e);
+        }finally{
+            message.success("User is Successfully Registered");
+        }
+
+
     };
 
     return (
@@ -69,14 +90,14 @@ const Register = () => {
                         <Row>
                             <Col span={24}>
                                 <Form.Item
-                                    label="Full Name" name="fullName" rules={[{ required: true, message: 'Please enter your full name.' }]}                                >
+                                    label="Full Name" name="fullName" rules={[{ required: true, message: 'Please enter your full name.' }]}>
                                     <Input type="text" placeholder="Enter your full name" onChange={handleChange} name="fullName" value={state.fullName} />
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
-                                <Form.Item label="Phone" name="phone" rules={[{ required: true, message: 'Please enter your phone number.' }]}                                >
+                                <Form.Item label="Phone" name="phone" rules={[{ required: true, message: 'Please enter your phone number.' }]}>
                                     <PhoneInput
-                                        inputStyle={{ outline: "blue", width: '100%', height: '38px', }}
+                                        inputStyle={{ outline: "blue", width: '100%', height: '38px' }}
                                         country={'pk'}
                                         value={state.phone}
                                         onChange={handlePhoneChange}
@@ -85,12 +106,12 @@ const Register = () => {
                             </Col>
                             <Col span={24}>
                                 <Form.Item
-                                    label="Email" name="email" rules={[{ required: true, message: 'Please enter your email.' }, { type: 'email', message: 'Please enter a valid email.' },]}>
+                                    label="Email" name="email" rules={[{ required: true, message: 'Please enter your email.' }, { type: 'email', message: 'Please enter a valid email.' }]}>
                                     <Input inputMode='email' placeholder="Enter your email" onChange={handleChange} name="email" value={state.email} />
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
-                                <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter your password.' }]}                                >
+                                <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter your password.' }]}>
                                     <Input.Password placeholder="Enter your password" onChange={handleChange} name="password" value={state.password} />
                                 </Form.Item>
                             </Col>
@@ -106,8 +127,7 @@ const Register = () => {
                                                 return Promise.reject(new Error("Passwords don't match."));
                                             },
                                         }),
-                                    ]}
-                                >
+                                    ]}>
                                     <Input.Password placeholder="Confirm your password" onChange={handleChange} name="confirmPassword" value={state.confirmPassword} />
                                 </Form.Item>
                             </Col>
@@ -116,11 +136,11 @@ const Register = () => {
                                     Register
                                 </Button>
                             </Col>
-                            <Col span={12} className="mt-3 ">
+                            <Col span={12} className="mt-3">
                                 <p>Already have an account?</p>
                             </Col>
                             <Col span={12}>
-                                <Link to="/auth/login" className=" btn bg-black mt-2  text-light p-2 text-center nav-link">
+                                <Link to="/auth/login" className="btn bg-black mt-2 text-light p-2 text-center nav-link">
                                     Login
                                 </Link>
                             </Col>

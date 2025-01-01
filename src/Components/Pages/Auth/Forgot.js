@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Container } from 'react-bootstrap';
-import { Col, Row, Input, Form, message } from 'antd';
+import { Container, Button } from 'react-bootstrap';
+import { Col, Row, Input, Form, message} from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailLink } from 'firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from 'Components/Config/firebase';
 
 const Forgot = () => {
   const [state, setState] = useState({ email: '' });
@@ -12,21 +13,30 @@ const Forgot = () => {
   const handleChange = (e) => {
     setState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+  
 
-  const handleSubmit = async () => {
-    const { email } = state;
-    try {
-        setIsProcessing(true);
-        const userCredential = await signInWithEmailLink( email);
-        const user = userCredential.user;
-        console.log('user', user)
+  const handleSubmit = e => {
+    e.preventDefault();
 
-    } catch (error) {
-        message.error(error.message || 'User is logged in.');
-    } finally {
-        setIsProcessing(false);
-    }
-};
+    let { email } = state
+    setIsProcessing(true)
+
+    sendPasswordResetEmail(auth, email, { url: 'http://localhost:3000/auth/login' })
+    
+      .then(() => {
+        message.success("Email send  Successfully")
+        navigate('/auth/login'); // Redirect to login page
+
+      })
+      .catch(() => {
+        message.info("This Account Can't Register")
+      })
+      .finally(() => {
+        setIsProcessing(false)
+      })
+
+
+  }
 
 
   return (
@@ -57,12 +67,8 @@ const Forgot = () => {
                 </Form.Item>
               </Col>
               <Col span={24}>
-                <Button
-                  className="w-100 btn btn-primary"
-                  htmlType="submit"
-                  disabled={isProcessing}
-                >
-                  {isProcessing ? 'Processing...' : 'Submit'}
+                <Button className="w-100 btn btn-primary" onClick={handleSubmit} disabled={isProcessing}  >
+                  Submit
                 </Button>
               </Col>
               <Col span={24} className="d-flex justify-content-center align-items-center">

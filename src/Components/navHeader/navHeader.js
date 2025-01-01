@@ -43,7 +43,7 @@ const NavHeader = () => {
         { name: 'Home', path: "/" },
         // { name: 'Blog', path: "/pages/blog" },
         { name: 'About us', path: "/about" },
-        { name: 'Service', path: "/service" },
+        { name: 'My Todos', path: "/todos" },
     ]
 
     const [activeId, setActiveId] = useState(null);
@@ -79,7 +79,7 @@ const NavHeader = () => {
                             </>
                             : <>
                                 <Dropdown.Item as={"div"}>
-                                    <Link className='ms-4 nav-link  text-dark' to="/dashboard">DashBoard</Link>
+                                    <Link className='ms-4 nav-link  text-dark' to="/todos">My Todos</Link>
                                 </Dropdown.Item>
                                 <Dropdown.Item as={"div"}>
                                     <Link className='ms-4 nav-link  text-dark' onClick={handleLogout} >Logout</Link>

@@ -1,42 +1,48 @@
 import React, { useState } from 'react';
-import { Col, Form, Input, Row, message , Button } from 'antd';
-import {Container } from 'react-bootstrap';
+import { Col, Form, Input, Row, message } from 'antd';
+import { Container  , Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { auth } from 'Components/Config/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const Login = () => {
-    const initialState = {  email: '', password: '' };
+    const initialState = { email: '', password: '' };
     const [state, setState] = useState(initialState);
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleChange = (e) =>
         setState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-    const handleSubmit = async () => {
-        const { email, password } = state;
-        try {
-            setIsProcessing(true);
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            console.log('user', user)
-            setState(initialState);
+    const handleSubmit = e => {
+        e.preventDefault();
 
-        } catch (error) {
-            message.error(error.message || 'An error occurred during registration.');
-        } finally {
-            setIsProcessing(false);
-        }
-    };
+        let { email, password } = state
 
-   
+        setIsProcessing(true)
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                localStorage.setItem('user-login', true)
+                localStorage.setItem('user-uid', user.uid)
+                message.success("User is Successfully  Login ")
+            })
+            .catch((user) => {
+                message.error("This Account Can't Register")
+            })
+            .finally(() => {
+                setIsProcessing(false)
+            })
+    }
+
+
     return (
         <main className="auth p-3 p-md-4 p-lg-5">
             <Container>
                 <div className="card p-3 p-md-4 p-lg-4">
                     <Form layout="vertical" onFinish={handleSubmit}>
                         <h1 className="mb-4 text-center">
-                            <i>Register</i>
+                            <i>Login</i>
                         </h1>
                         <Row>
                             <Col span={24}>
@@ -51,10 +57,8 @@ const Login = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
-                                <Button type="primary" loading={isProcessing}  className="w-100"
-                            
-                                >
-                                   Login
+                                <Button type="primary"className="w-100" loading={isProcessing} onClick={handleSubmit}  >
+                                    Login
                                 </Button>
                             </Col>
                             <Col span={12} className="mt-1">
@@ -64,7 +68,7 @@ const Login = () => {
                                 <Link to="/auth/forgot" className="btn mt-1 text-center nav-link">
                                     Forgot
                                 </Link>
-                           </Col>
+                            </Col>
                         </Row>
                     </Form>
                 </div>

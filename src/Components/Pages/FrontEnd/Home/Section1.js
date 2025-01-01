@@ -1,6 +1,6 @@
 import React from 'react'
-import { Card, Container, Image } from 'react-bootstrap'
-import { Button, Col, Row, Typography } from 'antd'
+import { Button, Card, Container, Image } from 'react-bootstrap'
+import {  Col, Row, Typography } from 'antd'
 import Frame from '../../Assets/images/frame3.png'
 import { Fade } from 'react-awesome-reveal'
 const Section1 = () => {
